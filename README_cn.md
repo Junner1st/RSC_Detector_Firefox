@@ -1,6 +1,6 @@
 # RSC 指纹检测器
 
-一款用于检测网页中 React Server Components (RSC) 和 Next.js App Router 指纹的 Chrome 浏览器扩展。
+一款用于检测网页中 React Server Components (RSC) 和 Next.js App Router 指纹的 Firefox 浏览器扩展。
 
 ## ⚠️ 重要提醒
 
@@ -34,15 +34,14 @@
 ### 从源码安装
 1. 克隆此仓库：
    ```bash
-   git clone https://github.com/mrknow001/RSC_Detector.git
-   cd RSC_Detector
+   git clone https://github.com/Junner1st/RSC_Detector_Firefox.git
+   cd RSC_Detector_Firefox
    ```
 
-2. 在 Chrome 中加载扩展：
-   - 打开 Chrome 并访问 `chrome://extensions/`
-   - 启用"开发者模式"（右上角切换）
-   - 点击"加载已解压的扩展程序"
-   - 选择 RSC_Detector 文件夹
+2. 在 Firefox 中加载扩展：
+   - 打开 Firefox 并访问 `about:debugging#/runtime/this-firefox`
+   - 点击"临时加载附加组件…"
+   - 选择 RSC_Detector_Firefox/manifest.json
 
 ## 使用方法
 
@@ -97,7 +96,6 @@ RSC_Detector/
 欢迎贡献代码。请确保任何更改：
 - 保持教育/研究重点
 - 包含适当的文档
-- 遵循 Chrome 扩展最佳实践
 
 ## 许可证
 

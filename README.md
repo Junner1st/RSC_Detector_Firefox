@@ -1,6 +1,6 @@
 # RSC Fingerprint Detector
 
-A Chrome extension for detecting React Server Components (RSC) and Next.js App Router fingerprints on web pages.
+A Firefox extension for detecting React Server Components (RSC) and Next.js App Router fingerprints on web pages.
 
 ## ⚠️ Important Notice
 
@@ -34,15 +34,14 @@ The extension uses multiple detection techniques:
 ### From Source
 1. Clone this repository:
    ```bash
-   git clone https://github.com/mrknow001/RSC_Detector.git
-   cd RSC_Detector
+   git clone https://github.com/Junner1st/RSC_Detector_Firefox.git
+   cd RSC_Detector_Firefox
    ```
 
-2. Load the extension in Chrome:
-   - Open Chrome and go to `chrome://extensions/`
-   - Enable "Developer mode" (toggle in top right)
-   - Click "Load unpacked"
-   - Select the RSC_Detector folder
+2. Load the extension in Firefox:
+   - Open Firefox and go to `about:debugging#/runtime/this-firefox`
+   - Click "Load Temporary Add-on…"
+   - Select the RSC_Detector_Firefox/manifest.json
 
 ## Usage
 
@@ -97,7 +96,6 @@ The extension requires:
 Contributions are welcome. Please ensure any changes:
 - Maintain the educational/research focus
 - Include proper documentation
-- Follow Chrome extension best practices
 
 ## License
 

@@ -1,33 +1,31 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "RSC Fingerprint Detector",
   "version": "1.0",
-  "description": "检测 React Server Components (RSC) 及 Next.js App Router 指纹",
+  "description": "Detect React Server Components (RSC) and Next.js App Router fingerprints",
+
   "permissions": [
+    "tabs",
     "activeTab",
-    "scripting",
-    "declarativeNetRequest",
-    "declarativeNetRequestWithHostAccess"
-  ],
-  "host_permissions": [
     "<all_urls>"
   ],
-  "declarative_net_request": {
-    "rule_resources": [
-      {
-        "id": "ruleset_1",
-        "enabled": true,
-        "path": "rules.json"
-      }
-    ]
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{b73433a5-5a8a-4df4-ba2c-ab29034305e9}",
+      "strict_min_version": "109.0"
+    }
   },
+
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"]
   },
-  "action": {
+
+  "browser_action": {
     "default_popup": "popup.html",
     "default_title": "RSC Detector"
   },
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

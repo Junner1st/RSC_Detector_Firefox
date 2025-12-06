@@ -1,4 +1,20 @@
-document.addEventListener('DOMContentLoaded', () => {
+if (typeof browser === "undefined") {
+    var browser = chrome;
+}
+
+function queryTabs(options) {
+    return new Promise((resolve, reject) => {
+        browser.tabs.query(options, (tabs) => {
+            if (browser.runtime.lastError) {
+                reject(new Error(browser.runtime.lastError.message));
+            } else {
+                resolve(tabs);
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
     const el = {
         passiveBadge: document.getElementById('passive-badge'),
         passiveList: document.getElementById('passive-list'),
@@ -12,17 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
         rceOutput: document.getElementById('rce-output')
     };
 
-    // 1. 获取当前 Tab
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    try {
+        const tabs = await queryTabs({active: true, currentWindow: true});
         const tabId = tabs[0].id;
         
         // --- 初始化：被动扫描 ---
-        chrome.tabs.sendMessage(tabId, {action: "get_passive"}, (res) => {
-            if(chrome.runtime.lastError || !res) {
-                el.passiveBadge.innerText = "ERROR";
-                el.passiveList.innerHTML = "<li>Please refresh page</li>";
-                return;
-            }
+        try {
+            const res = await browser.tabs.sendMessage(tabId, {action: "get_passive"});
             if(res.isRSC) {
                 el.passiveBadge.innerText = "DETECTED";
                 el.passiveBadge.className = "badge red";
@@ -39,15 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.style.color = "#c0392b";
                 el.passiveList.appendChild(li);
             });
-        });
+        } catch (e) {
+            el.passiveBadge.innerText = "ERROR";
+            el.passiveList.innerHTML = "<li>Please refresh page</li>";
+        }
 
         // --- 交互：主动指纹 ---
-        el.btnFinger.addEventListener('click', () => {
+        el.btnFinger.addEventListener('click', async () => {
             el.btnFinger.disabled = true;
             el.btnFinger.innerText = "Probing...";
             el.fingerResult.style.display = 'none';
 
-            chrome.tabs.sendMessage(tabId, {action: "run_fingerprint"}, (res) => {
+            try {
+                const res = await browser.tabs.sendMessage(tabId, {action: "run_fingerprint"});
                 el.btnFinger.disabled = false;
                 el.btnFinger.innerText = "Start Fingerprint Probe";
                 el.fingerResult.style.display = 'block';
@@ -64,18 +80,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     el.activeList.innerHTML = "<li style='color:#27ae60'>No Active RSC Response</li>";
                 }
-            });
+            } catch (e) {
+                el.btnFinger.disabled = false;
+                el.btnFinger.innerText = "Start Fingerprint Probe";
+                el.fingerResult.style.display = 'block';
+                el.activeList.innerHTML = "<li style='color:#e74c3c'>Error: No response from content script</li>";
+            }
         });
 
         // --- 交互：RCE 利用 ---
-        el.btnExploit.addEventListener('click', () => {
+        el.btnExploit.addEventListener('click', async () => {
             const cmd = el.cmdInput.value || "whoami";
             el.btnExploit.disabled = true;
             el.exploitStatus.style.display = 'block';
             el.exploitResult.style.display = 'none';
             el.rceOutput.className = 'console-out'; // 重置样式
 
-            chrome.tabs.sendMessage(tabId, {action: "run_exploit", cmd: cmd}, (res) => {
+            try {
+                const res = await browser.tabs.sendMessage(tabId, {action: "run_exploit", cmd: cmd});
                 el.btnExploit.disabled = false;
                 el.exploitStatus.style.display = 'none';
                 el.exploitResult.style.display = 'block';
@@ -84,12 +106,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.rceOutput.style.color = "#00cec9"; // 青色成功色
                     el.rceOutput.innerText = `[+] Command: ${cmd}\n[+] Output:\n${res.output}`;
                     // 成功后强制图标报警
-                    chrome.runtime.sendMessage({ action: "update_badge" });
+                    await browser.runtime.sendMessage({ action: "update_badge" });
                 } else {
                     el.rceOutput.style.color = "#e74c3c"; // 红色失败色
                     el.rceOutput.innerText = `[-] ${res ? res.msg : "Unknown Error"}`;
                 }
-            });
+            } catch (e) {
+                el.btnExploit.disabled = false;
+                el.exploitStatus.style.display = 'none';
+                el.exploitResult.style.display = 'block';
+                el.rceOutput.style.color = "#e74c3c";
+                el.rceOutput.innerText = `[-] Error: No response from content script`;
+            }
         });
-    });
+    } catch (e) {
+        console.error("Failed to get active tab:", e);
+        // Perhaps show error in UI
+    }
 });

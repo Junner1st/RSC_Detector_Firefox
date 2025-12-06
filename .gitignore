@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+*~
+__MACOSX
+
+# VSCode
+.vscode/
+*.code-workspace

